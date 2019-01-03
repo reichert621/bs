@@ -34,6 +34,12 @@ export const Text = styled(Box)`
   ${lineHeight}
 `;
 
+export const Label = styled(Text)`
+  display: inline-block;
+  font-weight: 400;
+  letter-spacing: 0.4px;
+`;
+
 export const LogoImg = styled.img`
   ${space}
   height: 24px;

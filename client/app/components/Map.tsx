@@ -219,11 +219,11 @@ class ScooterMap extends React.Component<MapProps, MapState> {
 
     return (
       <Flex
-        px={4}
+        px={[2, 3, 4]}
         justifyContent="space-between"
         flexDirection={['column', 'row']}
       >
-        <Box flex={[1, 1, 2]} py={[3, 4]}>
+        <Box flex={[1, 1, 2]} py={[2, 3, 4]}>
           <Map center={center} zoom={zoom}>
             <TileLayer attribution={attribution} url={url} />
 
@@ -273,7 +273,7 @@ class ScooterMap extends React.Component<MapProps, MapState> {
           </Map>
         </Box>
 
-        <Box flex={1} pl={[0, 3]} py={[3, 4]}>
+        <Box flex={1} pl={[0, 3]} py={[2, 3, 4]}>
           {selected && this.renderSelectedVehicle(selected)}
 
           {suggestions.map(location => {

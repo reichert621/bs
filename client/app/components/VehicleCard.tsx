@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { capitalize } from 'lodash';
-import { Box, Flex, Text, Card, LogoImg } from './common';
+import { Flex, Text, Label, Card, LogoImg } from './common';
 import { Vehicle } from '../helpers/locations';
 
 type VehicleCardProps = {
@@ -22,12 +22,18 @@ const VehicleCard = ({ vehicle }: VehicleCardProps) => {
             {formattedCompany} {name || id}
           </Text>
         </Flex>
-        <Text fontSize={[2, 1, 1, 2]}>Battery: {charge}%</Text>
+        <Text fontSize={[2, 1, 1, 2]}>
+          <Label mr={1}>Battery:</Label> {charge}%
+        </Text>
       </Flex>
 
       <Flex justifyContent="space-between">
-        <Text fontSize={[1, 0, 0, 1]}>Type: {formattedType}</Text>
-        <Text fontSize={[1, 0, 0, 1]}>Distance: {formattedDistance}</Text>
+        <Text fontSize={[1, 0, 0, 1]}>
+          <Label mr={1}>Type:</Label> {formattedType}
+        </Text>
+        <Text fontSize={[1, 0, 0, 1]}>
+          <Label mr={1}>Distance:</Label> {formattedDistance}
+        </Text>
       </Flex>
     </Card>
   );
