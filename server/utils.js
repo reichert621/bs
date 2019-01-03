@@ -1,9 +1,8 @@
 const { flatten } = require('lodash');
 
-const getLocationCharge = location => {
-  if (!location || !location.charge) return null;
+const getLocationCharge = charge => {
+  if (!charge) return null;
 
-  const { charge } = location;
   const num = Number(charge.replace('%', '').trim());
 
   return num <= 0 || num > 100 ? null : num;
