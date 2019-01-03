@@ -34,8 +34,7 @@ class ScooterMap extends React.Component<MapProps, MapState> {
   constructor(props: MapProps) {
     super(props);
 
-    const query = props.location.search;
-    const center = getDefaultLocation(query);
+    const center = this.getDefaultLocation();
 
     this.state = {
       center,
@@ -68,6 +67,12 @@ class ScooterMap extends React.Component<MapProps, MapState> {
         });
       })
       .catch(err => console.log('Error!', err));
+  }
+
+  getDefaultLocation() {
+    const query = this.props.location.search;
+
+    return getDefaultLocation(query);
   }
 
   formatLocations(locations: Location[]) {
@@ -215,6 +220,7 @@ class ScooterMap extends React.Component<MapProps, MapState> {
     const zoom = this.getZoom();
     const url = 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png';
     const attribution = `<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>`;
+    const current = this.getDefaultLocation();
     const center = this.getMapCenter();
 
     return (
@@ -236,7 +242,7 @@ class ScooterMap extends React.Component<MapProps, MapState> {
                   iconAnchor: [20, 40]
                 })
               }
-              position={center}
+              position={current}
               opacity={0.6}
               onClick={(e: any) => console.log('Center clicked!', e)}
             />
