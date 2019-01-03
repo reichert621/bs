@@ -59,8 +59,8 @@ class ScooterMap extends React.Component<MapProps, MapState> {
 
         this.setState({
           selected,
-          locationIds: formattedLocations.map(l => String(l.id)),
-          suggestedIds: suggestions.map(l => String(l.id)),
+          locationIds: formattedLocations.map(l => l.id),
+          suggestedIds: suggestions.map(l => l.id),
           locationsById: formattedLocations.reduce((acc, l) => {
             return { ...acc, [l.id]: l };
           }, {})
@@ -193,8 +193,9 @@ class ScooterMap extends React.Component<MapProps, MapState> {
     return (
       <Box
         key={id}
-        onMouseEnter={() => this.setState({ hovered: String(id) })}
+        onMouseEnter={() => this.setState({ hovered: id })}
         onMouseLeave={() => this.setState({ hovered: null })}
+        onClick={() => this.setState({ selected: id })}
         pb={2}
       >
         {this.renderLocationCard(location)}
