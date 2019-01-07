@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import * as qs from 'query-string';
 import * as request from 'superagent';
 import { groupBy, keys } from 'lodash';
@@ -62,6 +61,29 @@ export type IconOptions = {
 const views: { [key: string]: Location } = {
   home: { lat: 37.767043, lng: -122.426436 }, // Dolores & Hidalgo
   work: { lat: 37.772977, lng: -122.40067 } // Stripe office
+};
+
+export const getCurrentLocation = (query = ''): Promise<Location> => {
+  return new Promise(resolve => {
+    const { view, lat, lng } = qs.parse(query);
+
+    if (lat && lng) {
+      resolve({ lat: Number(lat), lng: Number(lng) });
+    } else if (view && views[view as string]) {
+      const coordinates = views[view as string];
+
+      resolve(coordinates);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        const { coords = {} as Coordinates } = position;
+        const { latitude: lat, longitude: lng } = coords;
+
+        resolve({ lat, lng });
+      });
+    } else {
+      resolve(views.home);
+    }
+  });
 };
 
 export const getDefaultLocation = (query = ''): Location => {

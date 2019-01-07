@@ -10,9 +10,9 @@ import {
   IconColor,
   IconOptions,
   getDefaultLocation,
+  getCurrentLocation,
   fetchVehicleLocations,
-  findClosestByCompany,
-  calculateMidpoint
+  findClosestByCompany
 } from '../helpers/locations';
 import VehicleCard from './VehicleCard';
 import StationCard from './StationCard';
@@ -22,6 +22,7 @@ type MapProps = RouteComponentProps<{}> & {};
 
 type MapState = {
   center?: Location;
+  current?: Location;
   locations: Location[];
   locationsById?: { [id: string]: Location };
   locationIds?: string[];
@@ -38,6 +39,7 @@ class ScooterMap extends React.Component<MapProps, MapState> {
 
     this.state = {
       center,
+      current: null,
       locations: [],
       locationsById: {},
       locationIds: [],
@@ -47,26 +49,28 @@ class ScooterMap extends React.Component<MapProps, MapState> {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    console.time('componentDidMount');
     const { center } = this.state;
-    const { lat, lng } = center;
-
-    return fetchVehicleLocations({ lat, lng })
-      .then(({ locations = [] }) => {
-        const suggestions = findClosestByCompany(locations);
-        const selected = this.getTopChoice(suggestions);
-        const formattedLocations = this.formatLocations(locations);
-
-        this.setState({
-          selected,
-          locationIds: formattedLocations.map(l => l.id),
-          suggestedIds: suggestions.map(l => l.id),
-          locationsById: formattedLocations.reduce((acc, l) => {
-            return { ...acc, [l.id]: l };
-          }, {})
-        });
-      })
-      .catch(err => console.log('Error!', err));
+    const query = this.props.location.search;
+    const position = await getCurrentLocation(query);
+    const current = position || center;
+    const { lat, lng } = current;
+    const { locations = [] } = await fetchVehicleLocations({ lat, lng });
+    const suggestions = findClosestByCompany(locations);
+    const selected = this.getTopChoice(suggestions);
+    const formattedLocations = this.formatLocations(locations);
+    console.timeEnd('componentDidMount');
+    this.setState({
+      selected,
+      current,
+      center: current,
+      locationIds: formattedLocations.map(l => l.id),
+      suggestedIds: suggestions.map(l => l.id),
+      locationsById: formattedLocations.reduce((acc, l) => {
+        return { ...acc, [l.id]: l };
+      }, {})
+    });
   }
 
   getDefaultLocation() {
@@ -133,19 +137,11 @@ class ScooterMap extends React.Component<MapProps, MapState> {
   }
 
   getMapCenter(): LatLngExpression {
-    // TODO: update center based on selected vehicle?
-    const { center, selected, locationsById } = this.state;
-    const { lat, lng } = center;
+    const { selected, locationsById } = this.state;
     const location = locationsById[selected];
 
-    if (lat && lng) {
-      if (location && location.lat && location.lng) {
-        const midpoint = calculateMidpoint(center, location);
-
-        return [midpoint.lat, midpoint.lng];
-      } else {
-        return [lat, lng];
-      }
+    if (location && location.lat && location.lng) {
+      return [location.lat, location.lng];
     } else {
       // Default to Mission Dolores neighborhood
       return [37.767043, -122.426436];
@@ -215,13 +211,12 @@ class ScooterMap extends React.Component<MapProps, MapState> {
   }
 
   render() {
-    const { selected, hovered } = this.state;
+    const { selected, current, hovered } = this.state;
     const locations = this.getAllLocations();
     const suggestions = this.getSuggestedLocations();
     const zoom = this.getZoom();
     const url = 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png';
     const attribution = `<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>`;
-    const current = this.getDefaultLocation();
     const center = this.getMapCenter();
 
     return (
@@ -234,19 +229,20 @@ class ScooterMap extends React.Component<MapProps, MapState> {
           <Map center={center} zoom={zoom}>
             <TileLayer attribution={attribution} url={url} />
 
-            {/* NB: current location marker */}
-            <Marker
-              icon={
-                new Icon({
-                  iconUrl: '/assets/black-pin.svg',
-                  iconSize: [40, 40],
-                  iconAnchor: [20, 40]
-                })
-              }
-              position={current}
-              opacity={0.6}
-              onClick={(e: any) => console.log('Center clicked!', e)}
-            />
+            {current && (
+              <Marker
+                icon={
+                  new Icon({
+                    iconUrl: '/assets/black-pin.svg',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40]
+                  })
+                }
+                position={current}
+                opacity={0.6}
+                onClick={(e: any) => console.log('Center clicked!', e)}
+              />
+            )}
 
             {locations.map((location, key) => {
               const { id, lat, lng, color, type, size } = location;
