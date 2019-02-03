@@ -74,8 +74,10 @@ api.get('/vehicles', async (req, res) => {
     Scoot.fetchScooters(query),
     Scoot.fetchKicks(query),
     Jump.fetchAvailableBikes(query),
-    GoBike.fetchAvailableBikes(query),
-    Skip.fetchScooters(query)
+    GoBike.fetchAvailableBikes(query)
+    // TODO: Skip is garbage, and Citymapper seems to have removed them
+    // from their API... ping Max and ask about hitting Skip's API directly
+    // Skip.fetchScooters(query)
   ])
     .then(response => {
       const { lat, lng } = query;

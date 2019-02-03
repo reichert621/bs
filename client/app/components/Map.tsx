@@ -92,6 +92,10 @@ class ScooterMap extends React.Component<MapProps, MapState> {
   }
 
   getTopChoice(suggestions: Location[]) {
+    if (!suggestions.length) {
+      return null;
+    }
+
     const gold = suggestions.filter(l => l.miles < 0.2 && l.rank < 3);
     const silver = suggestions.filter(l => l.miles < 0.25 && l.rank < 4);
     const bronze = suggestions.filter(l => l.rank < 4);
